@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>扶養セルフチェック</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+  :root{
+    --paper:#F2F0E8;
+    --paper-line:#E3E0D3;
+    --ink:#1C2740;
+    --ink-soft:#4A5471;
+    --seal:#B0392C;
+    --seal-dark:#8B2C22;
+    --gold:#9A7B3E;
+    --ok:#3D6B4F;
+    --card:#FFFFFF;
+    --shadow: 0 18px 40px -20px rgba(28,39,64,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Noto Sans JP', sans-serif;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 27px, var(--paper-line) 28px),
+      var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:40px 16px 80px;
+  }
+  .sheet{
+    width:100%;
+    max-width:640px;
+    margin-top:8px;
+  }
+  .letterhead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:14px;
+    margin-bottom:26px;
+  }
+  .letterhead .title{
+    font-family:'Noto Serif JP', serif;
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:0.04em;
+  }
+  .letterhead .title small{
+    display:block;
+    font-family:'Noto Sans JP', sans-serif;
+    font-weight:500;
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:0.12em;
+    margin-top:4px;
+  }
+  .stamp-mini{
+    width:46px;height:46px;border-radius:50%;
+    border:2.5px solid var(--seal);
+    color:var(--seal);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Noto Serif JP', serif;
+    font-weight:700;
+    font-size:13px;
+    transform:rotate(-8deg);
+    flex-shrink:0;
+    opacity:0.9;
+  }
+
+  .progress{
+    display:flex;
+    gap:8px;
+    margin-bottom:28px;
+  }
+  .progress .dot{
+    flex:1;
+    height:6px;
+    border-radius:3px;
+    background:var(--paper-line);
+    position:relative;
+    overflow:hidden;
+  }
+  .progress .dot.done{background:var(--seal);}
+  .progress .dot.current{background:var(--gold);}
+
+  .card{
+    background:var(--card);
+    border-radius:4px;
+    box-shadow:var(--shadow);
+    padding:36px 32px;
+    position:relative;
+    border:1px solid #E6E3D6;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:4px;
+    background:linear-gradient(90deg, var(--ink) 0%, var(--ink) 60%, var(--seal) 60%, var(--seal) 100%);
+  }
+
+  .step-label{
+    font-size:12px;
+    letter-spacing:0.14em;
+    color:var(--gold);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  h2{
+    font-family:'Noto Serif JP', serif;
+    font-size:21px;
+    line-height:1.6;
+    margin:0 0 8px;
+    font-weight:700;
+  }
+  .sub{
+    color:var(--ink-soft);
+    font-size:13.5px;
+    line-height:1.7;
+    margin-bottom:24px;
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .opt-btn{
+    text-align:left;
+    padding:15px 18px;
+    border-radius:3px;
+    border:1.5px solid #D8D4C4;
+    background:#FBFAF6;
+    cursor:pointer;
+    font-family:'Noto Sans JP', sans-serif;
+    font-size:14.5px;
+    color:var(--ink);
+    transition:all .15s ease;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .opt-btn:hover{
+    border-color:var(--seal);
+    background:#FFF9F7;
+  }
+  .opt-btn .arrow{color:var(--seal); font-size:16px; opacity:0; transition:opacity .15s;}
+  .opt-btn:hover .arrow{opacity:1;}
+
+  .num-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .num-row input{
+    flex:1;
+    padding:14px 16px;
+    font-size:20px;
+    border:1.5px solid #D8D4C4;
+    border-radius:3px;
+    font-family:'Noto Serif JP', serif;
+    background:#FBFAF6;
+    color:var(--ink);
+  }
+  .num-row input:focus{outline:none; border-color:var(--seal);}
+  .unit{font-size:14px; color:var(--ink-soft); font-weight:500;}
+
+  .nav-row{display:flex; justify-content:space-between; align-items:center; margin-top:26px;}
+  .btn-primary{
+    background:var(--ink);
+    color:#F2F0E8;
+    border:none;
+    padding:12px 26px;
+    border-radius:3px;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    cursor:pointer;
+    font-family:'Noto Sans JP', sans-serif;
+  }
+  .btn-primary:disabled{opacity:0.35; cursor:not-allowed;}
+  .btn-primary:hover:not(:disabled){background:var(--seal-dark);}
+  .btn-text{
+    background:none;border:none;color:var(--ink-soft);
+    font-size:13px; cursor:pointer; text-decoration:underline;
+    font-family:'Noto Sans JP', sans-serif;
+  }
+
+  .start-btn{
+    width:100%;
+    padding:16px;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    border-radius:3px;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    cursor:pointer;
+    font-family:'Noto Sans JP', sans-serif;
+  }
+  .start-btn:hover{background:var(--seal-dark);}
+
+  .intro-list{
+    list-style:none;
+    padding:0;
+    margin:0 0 26px;
+  }
+  .intro-list li{
+    display:flex;
+    gap:10px;
+    padding:9px 0;
+    border-bottom:1px dashed #E3E0D3;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  .intro-list li b{color:var(--ink); font-weight:700;}
+
+  /* Result screen */
+  .result-header{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-bottom:22px;
+  }
+  .seal-big{
+    width:78px;height:78px;
+    border-radius:50%;
+    border:3px solid var(--seal);
+    color:var(--seal);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Noto Serif JP', serif;
+    font-weight:700;
+    font-size:16px;
+    line-height:1.3;
+    text-align:center;
+    transform:rotate(-6deg);
+    flex-shrink:0;
+  }
+  .seal-big.ok{border-color:var(--ok); color:var(--ok);}
+  .result-header h2{margin:0;}
+
+  .result-block{
+    background:#FBFAF6;
+    border-left:3px solid var(--gold);
+    padding:16px 18px;
+    margin-bottom:14px;
+    border-radius:2px;
+  }
+  .result-block .label{
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--gold);
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .result-block .verdict{
+    font-family:'Noto Serif JP', serif;
+    font-weight:700;
+    font-size:16px;
+    margin-bottom:6px;
+  }
+  .result-block .verdict.ok{color:var(--ok);}
+  .result-block .verdict.ng{color:var(--seal);}
+  .result-block p{
+    font-size:13.5px;
+    line-height:1.75;
+    color:var(--ink-soft);
+    margin:0;
+  }
+
+  .action-box{
+    margin-top:20px;
+    padding:18px 20px;
+    background:var(--ink);
+    color:#F2F0E8;
+    border-radius:3px;
+  }
+  .action-box .label{
+    font-size:11px;
+    letter-spacing:0.14em;
+    color:#C9A34E;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .action-box p{margin:0; font-size:13.5px; line-height:1.8;}
+  .action-box ul{margin:8px 0 0; padding-left:18px; font-size:13px; line-height:1.9; color:#D8D9E0;}
+
+  .disclaimer{
+    margin-top:22px;
+    font-size:11.5px;
+    line-height:1.8;
+    color:#9C978A;
+    border-top:1px dashed #E3E0D3;
+    padding-top:14px;
+  }
+
+  .restart-row{margin-top:20px; text-align:center;}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="letterhead">
+    <div class="title">扶養セルフチェック<small>FUYO ELIGIBILITY SELF-CHECK &nbsp;|&nbsp; 2026年度版</small></div>
+    <div class="stamp-mini">確認用</div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <div class="card" id="card"></div>
+</div>
+
+<script>
+const state = {
+  step: 0,
+  relation: null,     // 'spouse' | 'young' | 'other'
+  income: null,        // in 万円
+  hours20: null,        // true/false
+  student: null,        // true/false
+  companySize: null,    // '51plus' | 'under51' | 'unknown'
+  livelihood: null       // true/false
+};
+
+const TOTAL_STEPS = 6;
+
+function renderProgress(){
+  const el = document.getElementById('progress');
+  el.innerHTML = '';
+  for(let i=1;i<=TOTAL_STEPS;i++){
+    const d = document.createElement('div');
+    d.className = 'dot' + (i < state.step ? ' done' : (i === state.step ? ' current' : ''));
+    el.appendChild(d);
+  }
+}
+
+function go(step){
+  state.step = step;
+  render();
+}
+
+function render(){
+  renderProgress();
+  const card = document.getElementById('card');
+  if(state.step === 0) card.innerHTML = introScreen();
+  else if(state.step === 1) card.innerHTML = stepRelation();
+  else if(state.step === 2) card.innerHTML = stepIncome();
+  else if(state.step === 3) card.innerHTML = stepHours();
+  else if(state.step === 4) card.innerHTML = stepStudent();
+  else if(state.step === 5) card.innerHTML = stepCompanySize();
+  else if(state.step === 6) card.innerHTML = stepLivelihood();
+  else if(state.step === 7) card.innerHTML = resultScreen();
+  attachHandlers();
+}
+
+function introScreen(){
+  return `
+    <div class="step-label">START</div>
+    <h2>ご家族を扶養に入れられるか、6つの質問で確認します</h2>
+    <div class="sub">税金上の扶養（配偶者控除・扶養控除）と、社会保険上の扶養（健康保険の被扶養者）は基準が異なります。両方まとめて目安を確認できます。</div>
+    <ul class="intro-list">
+      <li><b>所要時間：</b>約1分</li>
+      <li><b>用意するもの：</b>対象の方の今後1年間の見込み年収</li>
+      <li><b>結果：</b>制度ごとの判定と、次に取るべき行動をご案内します</li>
+    </ul>
+    <button class="start-btn" onclick="go(1)">チェックをはじめる</button>
+  `;
+}
+
+function stepRelation(){
+  return `
+    <div class="step-label">STEP 1 / 6</div>
+    <h2>扶養に入れたいのはどなたですか？</h2>
+    <div class="sub">続柄によって、税法上の判定基準（年収の上限）が変わります。</div>
+    <div class="options">
+      <button class="opt-btn" onclick="setRelation('spouse')">配偶者<span class="arrow">→</span></button>
+      <button class="opt-btn" onclick="setRelation('young')">お子さま・ご親族（19歳以上23歳未満）<span class="arrow">→</span></button>
+      <button class="opt-btn" onclick="setRelation('other')">その他のご親族（上記以外の年齢）<span class="arrow">→</span></button>
+    </div>
+  `;
+}
+function setRelation(v){ state.relation = v; go(2); }
+
+function stepIncome(){
+  return `
+    <div class="step-label">STEP 2 / 6</div>
+    <h2>その方の、今後1年間の見込み年収は？</h2>
+    <div class="sub">給与や事業収入など、今後1年間の合計見込み額を万円単位で入力してください（雇用契約書ベースの見込み額で構いません）。</div>
+    <div class="num-row">
+      <input type="number" id="incomeInput" placeholder="例：110" min="0" value="${state.income ?? ''}">
+      <span class="unit">万円 / 年</span>
+    </div>
+    <div class="nav-row">
+      <button class="btn-text" onclick="go(1)">← 戻る</button>
+      <button class="btn-primary" id="incomeNext" onclick="submitIncome()">次へ</button>
+    </div>
+  `;
+}
+function submitIncome(){
+  const val = document.getElementById('incomeInput').value;
+  if(val === '' || isNaN(val) || Number(val) < 0) return;
+  state.income = Number(val);
+  go(3);
+}
+
+function stepHours(){
+  return `
+    <div class="step-label">STEP 3 / 6</div>
+    <h2>週の所定労働時間は20時間以上ですか？</h2>
+    <div class="sub">社会保険（106万円の壁）の判定に使います。雇用契約書に書かれている時間で回答してください。</div>
+    <div class="options">
+      <button class="opt-btn" onclick="setHours(true)">20時間以上<span class="arrow">→</span></button>
+      <button class="opt-btn" onclick="setHours(false)">20時間未満、または働いていない<span class="arrow">→</span></button>
+    </div>
+    <div class="nav-row"><button class="btn-text" onclick="go(2)">← 戻る</button><span></span></div>
+  `;
+}
+function setHours(v){ state.hours20 = v; go(4); }
+
+function stepStudent(){
+  return `
+    <div class="step-label">STEP 4 / 6</div>
+    <h2>その方は学生ですか？</h2>
+    <div class="sub">昼間学生は社会保険の加入要件（106万円の壁）の対象外になります。</div>
+    <div class="options">
+      <button class="opt-btn" onclick="setStudent(true)">学生である（昼間学生）<span class="arrow">→</span></button>
+      <button class="opt-btn" onclick="setStudent(false)">学生ではない<span class="arrow">→</span></button>
+    </div>
+    <div class="nav-row"><button class="btn-text" onclick="go(3)">← 戻る</button><span></span></div>
+  `;
+}
+function setStudent(v){ state.student = v; go(5); }
+
+function stepCompanySize(){
+  return `
+    <div class="step-label">STEP 5 / 6</div>
+    <h2>その方の勤務先の従業員数は、おおよそ何人ですか？</h2>
+    <div class="sub">社会保険の適用拡大の対象企業かどうかの判定に使います（厚生年金の被保険者数ベース）。</div>
+    <div class="options">
+      <button class="opt-btn" onclick="setCompanySize('51plus')">51人以上<span class="arrow">→</span></button>
+      <button class="opt-btn" onclick="setCompanySize('under51')">51人未満<span class="arrow">→</span></button>
+      <button class="opt-btn" onclick="setCompanySize('unknown')">わからない<span class="arrow">→</span></button>
+    </div>
+    <div class="nav-row"><button class="btn-text" onclick="go(4)">← 戻る</button><span></span></div>
+  `;
+}
+function setCompanySize(v){ state.companySize = v; go(6); }
+
+function stepLivelihood(){
+  return `
+    <div class="step-label">STEP 6 / 6</div>
+    <h2>主にあなたの収入で生計を維持していますか？</h2>
+    <div class="sub">同居・別居は問いません（別居の場合は仕送り等を含みます）。社会保険の被扶養者認定に必要な要件です。</div>
+    <div class="options">
+      <button class="opt-btn" onclick="setLivelihood(true)">はい<span class="arrow">→</span></button>
+      <button class="opt-btn" onclick="setLivelihood(false)">いいえ<span class="arrow">→</span></button>
+    </div>
+    <div class="nav-row"><button class="btn-text" onclick="go(5)">← 戻る</button><span></span></div>
+  `;
+}
+function setLivelihood(v){ state.livelihood = v; go(7); }
+
+// ---- Judgment logic ----
+function judgeTax(){
+  const inc = state.income;
+  if(state.relation === 'spouse'){
+    if(inc <= 123) return {ok:true, title:'配偶者控除の対象（満額）', detail:'年収123万円以下のため、配偶者控除（満額38万円）の対象になる見込みです。'};
+    if(inc < 160) return {ok:true, title:'配偶者特別控除の対象（ほぼ満額）', detail:'年収160万円までは配偶者特別控除がほぼ満額に近い水準で受けられる見込みです。'};
+    if(inc < 201.6) return {ok:true, title:'配偶者特別控除の対象（段階的に減額）', detail:'年収が上がるほど控除額は段階的に減っていきます。201.6万円で控除はゼロになります。'};
+    return {ok:false, title:'配偶者控除・配偶者特別控除の対象外', detail:'年収201.6万円以上のため、配偶者に関する所得控除の対象外となる見込みです。'};
+  }
+  if(state.relation === 'young'){
+    if(inc <= 136) return {ok:true, title:'特定扶養控除の対象（満額63万円）', detail:'年収136万円以下のため、特定扶養控除（満額）の対象になる見込みです。'};
+    if(inc <= 159) return {ok:true, title:'特定親族特別控除の対象（満額）', detail:'年収159万円以下のため、特定親族特別控除が満額受けられる見込みです。'};
+    if(inc < 178) return {ok:true, title:'特定親族特別控除の対象（段階的に減額）', detail:'年収が上がるほど控除額は段階的に減っていきます。178万円前後で対象外となる見込みです。'};
+    return {ok:false, title:'扶養控除の対象外', detail:'年収178万円以上のため、税法上の扶養控除の対象外となる見込みです。'};
+  }
+  // other
+  if(inc <= 136) return {ok:true, title:'扶養控除の対象', detail:'年収136万円以下のため、扶養控除の対象になる見込みです。'};
+  return {ok:false, title:'扶養控除の対象外', detail:'年収136万円を超えているため、税法上の扶養控除の対象外となる見込みです。'};
+}
+
+function judgeShaho(){
+  if(state.livelihood === false){
+    return {ok:false, title:'生計維持要件を満たしません', detail:'社会保険の被扶養者認定には「主として被保険者の収入により生計を維持していること」が必要です。この要件を満たさないため、被扶養者にはなれない見込みです。'};
+  }
+  const cap = state.relation === 'young' ? 150 : 130;
+  if(state.income >= cap){
+    return {ok:false, title:`社会保険上の扶養の対象外（${cap}万円の壁）`, detail:`見込み年収が${cap}万円以上のため、社会保険上の被扶養者には該当しない見込みです。ご本人自身で健康保険・年金への加入が必要になります。`};
+  }
+  const hits106 = state.hours20 === true && state.companySize === '51plus' && state.student === false;
+  if(hits106){
+    return {ok:false, title:'ご本人が社会保険への加入対象（106万円の壁）', detail:'週20時間以上の勤務・従業員51人以上の企業・学生でない、という条件を満たすため、年収に関わらずご本人が勤務先の社会保険に加入する必要がある見込みです（2026年10月以降は賃金要件が撤廃され、週20時間以上の勤務のみで加入対象となります）。'};
+  }
+  if(state.companySize === 'unknown'){
+    return {ok:true, warn:true, title:`社会保険上の扶養の対象となる可能性（${cap}万円未満）`, detail:`見込み年収は基準内ですが、勤務先の従業員規模が不明なため、106万円の壁（社会保険加入義務）に該当しないか、対象者ご本人の勤務先に確認してください。`};
+  }
+  return {ok:true, title:`社会保険上の扶養の対象（${cap}万円未満）`, detail:`見込み年収が${cap}万円未満で、社会保険加入の要件にも該当しないため、被扶養者として認定される見込みです。`};
+}
+
+function resultScreen(){
+  const tax = judgeTax();
+  const shaho = judgeShaho();
+  const bothOk = tax.ok && shaho.ok && !shaho.warn;
+  const bothNg = !tax.ok && !shaho.ok;
+
+  let sealText, sealClass;
+  if(bothOk){ sealText = '扶養<br>可能性 高'; sealClass = 'ok'; }
+  else if(bothNg){ sealText = '要<br>再検討'; sealClass = ''; }
+  else { sealText = '要<br>確認'; sealClass = ''; }
+
+  let actionText, actionList;
+  if(bothOk){
+    actionText = '税法上・社会保険上のどちらも扶養の対象となる可能性が高い状況です。総務課に扶養追加の手続きをご相談ください。';
+    actionList = ['対象の方のマイナンバー', '続柄が確認できる書類（住民票など）', '年収見込みが分かる書類（雇用契約書・課税証明書など）'];
+  } else if(bothNg){
+    actionText = '現時点の見込みでは、税法上・社会保険上いずれの条件も満たさない可能性が高い結果です。念のため総務課に相談のうえ、正式な判定を受けてください。';
+    actionList = ['年収の見込みを見直せないか検討する', '不明点があれば総務課に相談する'];
+  } else {
+    actionText = '制度によって判定が分かれる、または追加確認が必要な結果です。税法上と社会保険上は別の制度・別の手続きになるため、それぞれの状況を総務課に伝えて確認してください。';
+    actionList = ['この画面の内容を総務課担当者に共有する', '不明な項目（勤務先の従業員規模など）を確認しておく'];
+  }
+
+  return `
+    <div class="result-header">
+      <div class="seal-big ${sealClass}">${sealText}</div>
+      <h2>判定結果</h2>
+    </div>
+
+    <div class="result-block">
+      <div class="label">税法上の扶養（所得税の控除）</div>
+      <div class="verdict ${tax.ok ? 'ok' : 'ng'}">${tax.title}</div>
+      <p>${tax.detail}</p>
+    </div>
+
+    <div class="result-block">
+      <div class="label">社会保険上の扶養（健康保険の被扶養者）</div>
+      <div class="verdict ${shaho.ok ? 'ok' : 'ng'}">${shaho.title}</div>
+      <p>${shaho.detail}</p>
+    </div>
+
+    <div class="action-box">
+      <div class="label">次にすること</div>
+      <p>${actionText}</p>
+      <ul>${actionList.map(i => `<li>${i}</li>`).join('')}</ul>
+    </div>
+
+    <div class="disclaimer">
+      本ツールの結果はあくまで目安です。年収の壁に関する制度は2025〜2026年にかけて改正が続いており（106万円の壁の賃金要件は2026年10月に撤廃予定など）、最終的な判定は必ず総務課・年金事務所・税務署にご確認ください。金額の基準は2026年（令和8年）時点の情報にもとづいています。
+    </div>
+
+    <div class="restart-row">
+      <button class="btn-text" onclick="go(0)">最初からやり直す</button>
+    </div>
+  `;
+}
+
+function attachHandlers(){
+  const inp = document.getElementById('incomeInput');
+  if(inp){
+    inp.addEventListener('keydown', e => { if(e.key === 'Enter') submitIncome(); });
+    inp.focus();
+  }
+}
+
+render();
+</script>
+</body>
+</html>
