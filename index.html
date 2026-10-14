@@ -1,575 +1,771 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>扶養セルフチェック</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>健康保険の扶養 かんたんチェック</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+:root{
+  --bg:#EEF3F1; --surface:#FFFFFF; --surface-2:#F6F9F8;
+  --ink:#16302B; --muted:#4F6660; --line:#D3DFDA;
+  --primary:#1E6B57; --primary-ink:#FFFFFF; --primary-weak:#DCEDE6;
+  --warn:#9A6212; --warn-weak:#FBF0D9;
+  --ng:#B23A2E; --ng-weak:#F8E2DE;
+  --focus:#2F80ED;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F1A17; --surface:#172521; --surface-2:#1C2D28;
+    --ink:#E6EFEC; --muted:#9DB3AC; --line:#2C3E39;
+    --primary:#5FC3A2; --primary-ink:#0F1A17; --primary-weak:#1E3A32;
+    --warn:#E3B04B; --warn-weak:#3A2E15;
+    --ng:#F08A7E; --ng-weak:#3D1F1B;
+    --focus:#7FB3FF;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1A17; --surface:#172521; --surface-2:#1C2D28;
+  --ink:#E6EFEC; --muted:#9DB3AC; --line:#2C3E39;
+  --primary:#5FC3A2; --primary-ink:#0F1A17; --primary-weak:#1E3A32;
+  --warn:#E3B04B; --warn-weak:#3A2E15;
+  --ng:#F08A7E; --ng-weak:#3D1F1B;
+  --focus:#7FB3FF;
+}
+*,*::before,*::after{box-sizing:inherit;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+html,body{margin:0;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'BIZ UDPGothic','Hiragino Sans','Hiragino Kaku Gothic ProN','Yu Gothic',Meiryo,sans-serif;
+  font-size:17px; line-height:1.8;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:640px; margin:0 auto; padding:24px 16px 64px;}
+h1,h2,h3{font-family:'Zen Maru Gothic','BIZ UDPGothic','Hiragino Maru Gothic ProN',sans-serif; font-weight:700; margin:0;}
+button{font:inherit; color:inherit;}
+:focus-visible{outline:3px solid var(--focus); outline-offset:2px;}
 
-  :root{
-    --paper:#F2F0E8;
-    --paper-line:#E3E0D3;
-    --ink:#1C2740;
-    --ink-soft:#4A5471;
-    --seal:#B0392C;
-    --seal-dark:#8B2C22;
-    --gold:#9A7B3E;
-    --ok:#3D6B4F;
-    --card:#FFFFFF;
-    --shadow: 0 18px 40px -20px rgba(28,39,64,0.35);
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    font-family:'Noto Sans JP', sans-serif;
-    background:
-      repeating-linear-gradient(0deg, transparent, transparent 27px, var(--paper-line) 28px),
-      var(--paper);
-    color:var(--ink);
-    min-height:100vh;
-    display:flex;
-    align-items:flex-start;
-    justify-content:center;
-    padding:40px 16px 80px;
-  }
-  .sheet{
-    width:100%;
-    max-width:640px;
-    margin-top:8px;
-  }
-  .letterhead{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    border-bottom:2px solid var(--ink);
-    padding-bottom:14px;
-    margin-bottom:26px;
-  }
-  .letterhead .title{
-    font-family:'Noto Serif JP', serif;
-    font-weight:700;
-    font-size:22px;
-    letter-spacing:0.04em;
-  }
-  .letterhead .title small{
-    display:block;
-    font-family:'Noto Sans JP', sans-serif;
-    font-weight:500;
-    font-size:11px;
-    color:var(--ink-soft);
-    letter-spacing:0.12em;
-    margin-top:4px;
-  }
-  .stamp-mini{
-    width:46px;height:46px;border-radius:50%;
-    border:2.5px solid var(--seal);
-    color:var(--seal);
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Noto Serif JP', serif;
-    font-weight:700;
-    font-size:13px;
-    transform:rotate(-8deg);
-    flex-shrink:0;
-    opacity:0.9;
-  }
+/* header */
+.top{display:flex; align-items:center; gap:12px; margin-bottom:20px;}
+.top .icon{
+  width:44px; height:44px; border-radius:12px; flex-shrink:0;
+  background:var(--primary); color:var(--primary-ink);
+  display:grid; place-items:center;
+}
+.top h1{font-size:19px; line-height:1.4;}
+.top p{margin:0; font-size:13px; color:var(--muted); line-height:1.5;}
 
-  .progress{
-    display:flex;
-    gap:8px;
-    margin-bottom:28px;
-  }
-  .progress .dot{
-    flex:1;
-    height:6px;
-    border-radius:3px;
-    background:var(--paper-line);
-    position:relative;
-    overflow:hidden;
-  }
-  .progress .dot.done{background:var(--seal);}
-  .progress .dot.current{background:var(--gold);}
+/* progress */
+.progress{margin-bottom:16px;}
+.progress .bar{height:8px; background:var(--line); border-radius:99px; overflow:hidden;}
+.progress .fill{height:100%; background:var(--primary); border-radius:99px; transition:width .3s ease;}
+.progress .txt{font-size:13px; color:var(--muted); margin-top:6px; display:flex; justify-content:space-between;}
 
-  .card{
-    background:var(--card);
-    border-radius:4px;
-    box-shadow:var(--shadow);
-    padding:36px 32px;
-    position:relative;
-    border:1px solid #E6E3D6;
-  }
-  .card::before{
-    content:"";
-    position:absolute;
-    top:0;left:0;right:0;
-    height:4px;
-    background:linear-gradient(90deg, var(--ink) 0%, var(--ink) 60%, var(--seal) 60%, var(--seal) 100%);
-  }
+/* card */
+.card{background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:28px 22px;}
+@media (min-width:560px){ .card{padding:36px 34px;} }
+.q{font-size:23px; line-height:1.55; margin-bottom:10px;}
+.lead{color:var(--muted); font-size:15.5px; margin:0 0 22px;}
 
-  .step-label{
-    font-size:12px;
-    letter-spacing:0.14em;
-    color:var(--gold);
-    font-weight:700;
-    margin-bottom:10px;
-  }
-  h2{
-    font-family:'Noto Serif JP', serif;
-    font-size:21px;
-    line-height:1.6;
-    margin:0 0 8px;
-    font-weight:700;
-  }
-  .sub{
-    color:var(--ink-soft);
-    font-size:13.5px;
-    line-height:1.7;
-    margin-bottom:24px;
-  }
+/* choices */
+.choices{display:flex; flex-direction:column; gap:10px;}
+.choice{
+  display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+  padding:16px 18px; min-height:60px;
+  background:var(--surface-2); border:2px solid var(--line); border-radius:14px;
+  cursor:pointer; transition:border-color .12s, background .12s;
+}
+.choice:hover{border-color:var(--primary);}
+.choice.sel{border-color:var(--primary); background:var(--primary-weak);}
+.choice .mark{
+  width:24px; height:24px; border-radius:50%; flex-shrink:0;
+  border:2px solid var(--line); background:var(--surface);
+  display:grid; place-items:center;
+}
+.choice.multi .mark{border-radius:6px;}
+.choice.sel .mark{border-color:var(--primary); background:var(--primary); color:var(--primary-ink);}
+.choice .t{font-weight:700; font-size:16.5px; display:block; line-height:1.5;}
+.choice .d{display:block; font-size:14px; color:var(--muted); line-height:1.6; margin-top:2px;}
 
-  .options{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-  .opt-btn{
-    text-align:left;
-    padding:15px 18px;
-    border-radius:3px;
-    border:1.5px solid #D8D4C4;
-    background:#FBFAF6;
-    cursor:pointer;
-    font-family:'Noto Sans JP', sans-serif;
-    font-size:14.5px;
-    color:var(--ink);
-    transition:all .15s ease;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-  }
-  .opt-btn:hover{
-    border-color:var(--seal);
-    background:#FFF9F7;
-  }
-  .opt-btn .arrow{color:var(--seal); font-size:16px; opacity:0; transition:opacity .15s;}
-  .opt-btn:hover .arrow{opacity:1;}
+.group{margin-bottom:26px;}
+.group > .gl{font-weight:700; font-size:16.5px; margin-bottom:10px; display:block;}
+.row-choices{display:grid; grid-template-columns:1fr; gap:8px;}
+@media (min-width:480px){ .row-choices.c3{grid-template-columns:repeat(3,1fr);} .row-choices.c2{grid-template-columns:repeat(2,1fr);} }
+.row-choices .choice{min-height:52px; padding:12px 14px;}
+.row-choices .choice .t{font-size:15.5px;}
 
-  .num-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:22px;
-  }
-  .num-row input{
-    flex:1;
-    padding:14px 16px;
-    font-size:20px;
-    border:1.5px solid #D8D4C4;
-    border-radius:3px;
-    font-family:'Noto Serif JP', serif;
-    background:#FBFAF6;
-    color:var(--ink);
-  }
-  .num-row input:focus{outline:none; border-color:var(--seal);}
-  .unit{font-size:14px; color:var(--ink-soft); font-weight:500;}
+/* hint */
+details.hint{margin-top:22px; border-radius:12px; background:var(--surface-2); border:1px solid var(--line);}
+details.hint summary{cursor:pointer; padding:12px 16px; font-weight:700; font-size:15px; color:var(--primary); list-style:none; display:flex; align-items:center; gap:8px;}
+details.hint summary::-webkit-details-marker{display:none;}
+details.hint summary::before{content:"？"; width:22px; height:22px; border-radius:50%; background:var(--primary); color:var(--primary-ink); font-size:13px; display:grid; place-items:center; flex-shrink:0;}
+details.hint[open] summary{border-bottom:1px solid var(--line);}
+details.hint .body{padding:12px 16px 14px; font-size:14.5px; color:var(--muted); line-height:1.8;}
+details.hint .body p{margin:0 0 8px;} details.hint .body p:last-child{margin:0;}
 
-  .nav-row{display:flex; justify-content:space-between; align-items:center; margin-top:26px;}
-  .btn-primary{
-    background:var(--ink);
-    color:#F2F0E8;
-    border:none;
-    padding:12px 26px;
-    border-radius:3px;
-    font-size:14px;
-    font-weight:700;
-    letter-spacing:0.04em;
-    cursor:pointer;
-    font-family:'Noto Sans JP', sans-serif;
-  }
-  .btn-primary:disabled{opacity:0.35; cursor:not-allowed;}
-  .btn-primary:hover:not(:disabled){background:var(--seal-dark);}
-  .btn-text{
-    background:none;border:none;color:var(--ink-soft);
-    font-size:13px; cursor:pointer; text-decoration:underline;
-    font-family:'Noto Sans JP', sans-serif;
-  }
+/* inputs */
+.field{margin-bottom:24px;}
+.field label.fl{display:block; font-weight:700; font-size:16.5px; margin-bottom:4px;}
+.field .fh{font-size:14px; color:var(--muted); margin:0 0 10px; line-height:1.6;}
+.money{display:flex; gap:8px; align-items:stretch; flex-wrap:wrap;}
+.money .inbox{flex:1 1 180px; display:flex; align-items:center; background:var(--surface-2); border:2px solid var(--line); border-radius:12px; padding:0 14px;}
+.money .inbox:focus-within{border-color:var(--primary);}
+.money input{flex:1; min-width:0; border:none; background:transparent; color:var(--ink); font:inherit; font-size:21px; padding:12px 0; font-variant-numeric:tabular-nums;}
+.money input:focus{outline:none;}
+.money .yen{color:var(--muted); font-size:15px; margin-left:6px;}
+.seg{display:flex; border:2px solid var(--line); border-radius:12px; overflow:hidden; flex-shrink:0;}
+.seg button{border:none; background:var(--surface-2); padding:0 16px; min-height:52px; cursor:pointer; font-size:15px; color:var(--muted);}
+.seg button.on{background:var(--primary); color:var(--primary-ink); font-weight:700;}
+.conv{font-size:14px; color:var(--muted); margin-top:6px; min-height:1.6em;}
+.conv b{color:var(--ink);}
 
-  .start-btn{
-    width:100%;
-    padding:16px;
-    background:var(--ink);
-    color:var(--paper);
-    border:none;
-    border-radius:3px;
-    font-size:15px;
-    font-weight:700;
-    letter-spacing:0.06em;
-    cursor:pointer;
-    font-family:'Noto Sans JP', sans-serif;
-  }
-  .start-btn:hover{background:var(--seal-dark);}
+.calc{margin-top:10px; padding:14px; border:1px dashed var(--line); border-radius:12px; font-size:14.5px;}
+.calc .cr{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+.calc input{width:88px; padding:8px 10px; border:2px solid var(--line); border-radius:8px; background:var(--surface-2); color:var(--ink); font:inherit; font-size:16px;}
+.calc .apply{margin-top:10px;}
 
-  .intro-list{
-    list-style:none;
-    padding:0;
-    margin:0 0 26px;
-  }
-  .intro-list li{
-    display:flex;
-    gap:10px;
-    padding:9px 0;
-    border-bottom:1px dashed #E3E0D3;
-    font-size:13.5px;
-    color:var(--ink-soft);
-    line-height:1.6;
-  }
-  .intro-list li b{color:var(--ink); font-weight:700;}
+.note{padding:12px 16px; border-radius:12px; font-size:14.5px; line-height:1.75; margin-top:14px;}
+.note.info{background:var(--primary-weak);}
+.note.warn{background:var(--warn-weak);}
 
-  /* Result screen */
-  .result-header{
-    display:flex;
-    align-items:center;
-    gap:18px;
-    margin-bottom:22px;
-  }
-  .seal-big{
-    width:78px;height:78px;
-    border-radius:50%;
-    border:3px solid var(--seal);
-    color:var(--seal);
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Noto Serif JP', serif;
-    font-weight:700;
-    font-size:16px;
-    line-height:1.3;
-    text-align:center;
-    transform:rotate(-6deg);
-    flex-shrink:0;
-  }
-  .seal-big.ok{border-color:var(--ok); color:var(--ok);}
-  .result-header h2{margin:0;}
+/* nav */
+.nav{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:28px;}
+.btn{border:none; border-radius:12px; padding:14px 26px; min-height:52px; font-weight:700; font-size:16px; cursor:pointer;}
+.btn.primary{background:var(--primary); color:var(--primary-ink);}
+.btn.primary:disabled{opacity:.35; cursor:not-allowed;}
+.btn.ghost{background:transparent; color:var(--muted); padding:14px 8px;}
+.btn.ghost:hover{color:var(--ink);}
+.btn.wide{width:100%;}
+.btn.small{padding:8px 14px; min-height:40px; font-size:14px; background:var(--primary-weak); color:var(--ink);}
+.err{color:var(--ng); font-size:14px; margin-top:6px;}
 
-  .result-block{
-    background:#FBFAF6;
-    border-left:3px solid var(--gold);
-    padding:16px 18px;
-    margin-bottom:14px;
-    border-radius:2px;
-  }
-  .result-block .label{
-    font-size:11px;
-    letter-spacing:0.1em;
-    color:var(--gold);
-    font-weight:700;
-    margin-bottom:6px;
-  }
-  .result-block .verdict{
-    font-family:'Noto Serif JP', serif;
-    font-weight:700;
-    font-size:16px;
-    margin-bottom:6px;
-  }
-  .result-block .verdict.ok{color:var(--ok);}
-  .result-block .verdict.ng{color:var(--seal);}
-  .result-block p{
-    font-size:13.5px;
-    line-height:1.75;
-    color:var(--ink-soft);
-    margin:0;
-  }
+/* intro */
+.intro-hero{font-size:26px; line-height:1.55; margin-bottom:14px;}
+.intro-points{list-style:none; padding:0; margin:0 0 24px;}
+.intro-points li{display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); font-size:15.5px; line-height:1.7;}
+.intro-points li:last-child{border-bottom:none;}
+.intro-points .ic{width:30px; height:30px; border-radius:50%; background:var(--primary-weak); color:var(--primary); display:grid; place-items:center; flex-shrink:0; font-weight:700;}
 
-  .action-box{
-    margin-top:20px;
-    padding:18px 20px;
-    background:var(--ink);
-    color:#F2F0E8;
-    border-radius:3px;
-  }
-  .action-box .label{
-    font-size:11px;
-    letter-spacing:0.14em;
-    color:#C9A34E;
-    font-weight:700;
-    margin-bottom:8px;
-  }
-  .action-box p{margin:0; font-size:13.5px; line-height:1.8;}
-  .action-box ul{margin:8px 0 0; padding-left:18px; font-size:13px; line-height:1.9; color:#D8D9E0;}
+/* result */
+.verdict{border-radius:18px; padding:24px 22px; margin-bottom:22px; display:flex; gap:18px; align-items:center;}
+.verdict.ok{background:var(--primary-weak);}
+.verdict.warn{background:var(--warn-weak);}
+.verdict.ng{background:var(--ng-weak);}
+.verdict .big{
+  width:76px; height:76px; border-radius:50%; flex-shrink:0;
+  display:grid; place-items:center; font-size:40px; font-weight:700;
+  font-family:'Zen Maru Gothic',sans-serif; background:var(--surface);
+}
+.verdict.ok .big{color:var(--primary);} .verdict.warn .big{color:var(--warn);} .verdict.ng .big{color:var(--ng);}
+.verdict h2{font-size:22px; line-height:1.5;}
+.verdict p{margin:4px 0 0; font-size:14.5px; color:var(--muted); line-height:1.7;}
 
-  .disclaimer{
-    margin-top:22px;
-    font-size:11.5px;
-    line-height:1.8;
-    color:#9C978A;
-    border-top:1px dashed #E3E0D3;
-    padding-top:14px;
-  }
+.sec-title{font-size:18px; margin:28px 0 12px;}
+.reqs{display:flex; flex-direction:column; gap:10px;}
+.req{display:flex; gap:14px; padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:var(--surface-2);}
+.req .st{width:34px; height:34px; border-radius:50%; flex-shrink:0; display:grid; place-items:center; font-weight:700; font-size:18px;}
+.req .st.ok{background:var(--primary-weak); color:var(--primary);}
+.req .st.warn{background:var(--warn-weak); color:var(--warn);}
+.req .st.ng{background:var(--ng-weak); color:var(--ng);}
+.req .st.skip{background:var(--line); color:var(--muted);}
+.req h3{font-size:16px; line-height:1.5; font-family:'BIZ UDPGothic',sans-serif;}
+.req p{margin:2px 0 0; font-size:14.5px; color:var(--muted); line-height:1.75;}
 
-  .restart-row{margin-top:20px; text-align:center;}
+/* gauge: the one visual the user remembers */
+.gauge{margin-top:10px; padding:16px 16px 12px; border-radius:14px; background:var(--surface); border:1px solid var(--line);}
+.gauge .gt{font-size:14px; font-weight:700; margin-bottom:28px;}
+.gauge .track{position:relative; height:18px; background:var(--line); border-radius:99px;}
+.gauge .val{position:absolute; left:0; top:0; bottom:0; border-radius:99px;}
+.gauge .val.ok{background:var(--primary);} .gauge .val.ng{background:var(--ng);} .gauge .val.warn{background:var(--warn);}
+.gauge .wall{position:absolute; top:-24px; bottom:-6px; width:0; border-left:3px dashed var(--ink);}
+.gauge .wall span{position:absolute; top:-2px; left:6px; white-space:nowrap; font-size:12.5px; font-weight:700;}
+.gauge .wall.flip span{left:auto; right:6px;}
+.gauge .legend{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-top:8px; gap:10px; flex-wrap:wrap;}
+
+.docs{list-style:none; padding:0; margin:0;}
+.docs li{padding:10px 0 10px 30px; position:relative; border-bottom:1px solid var(--line); font-size:15px; line-height:1.7;}
+.docs li::before{content:""; position:absolute; left:4px; top:16px; width:14px; height:14px; border:2px solid var(--primary); border-radius:4px;}
+.docs li small{display:block; color:var(--muted); font-size:13.5px;}
+
+.next{margin-top:24px; padding:18px 20px; border-radius:14px; background:var(--primary); color:var(--primary-ink);}
+.next h3{font-size:17px; margin-bottom:6px;}
+.next p{margin:0; font-size:15px; line-height:1.8;}
+
+.disclaimer{margin-top:22px; font-size:12.5px; color:var(--muted); line-height:1.8; border-top:1px solid var(--line); padding-top:14px;}
+.actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:20px;}
+
+@media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+@media print{
+  body{background:#fff; color:#000;}
+  .progress,.actions,.top .icon{display:none;}
+  .card{border:none; padding:0;}
+}
 </style>
 </head>
 <body>
-<div class="sheet">
-  <div class="letterhead">
-    <div class="title">扶養セルフチェック<small>FUYO ELIGIBILITY SELF-CHECK &nbsp;|&nbsp; 2026年度版</small></div>
-    <div class="stamp-mini">確認用</div>
+<div class="wrap">
+  <header class="top">
+    <div class="icon" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 16.5 12 21 12 21z"/><path d="M9.5 12.5l2 2 3.5-4"/></svg>
+    </div>
+    <div>
+      <h1>健康保険の扶養 かんたんチェック</h1>
+      <p>協会けんぽに加入している方向け｜家族を扶養に入れられるか、目安を確かめます（2026年10月時点の基準）</p>
+    </div>
+  </header>
+  <div class="progress" id="progress" hidden>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="txt"><span id="ptxt"></span><span id="pname"></span></div>
   </div>
-
-  <div class="progress" id="progress"></div>
-
-  <div class="card" id="card"></div>
+  <main class="card" id="card" aria-live="polite"></main>
 </div>
 
 <script>
-const state = {
-  step: 0,
-  relation: null,     // 'spouse' | 'young' | 'other'
-  income: null,        // in 万円
-  hours20: null,        // true/false
-  student: null,        // true/false
-  companySize: null,    // '51plus' | 'under51' | 'unknown'
-  livelihood: null       // true/false
+/* ===== 状態 ===== */
+const S = {
+  relation:null, living:null, residence:null, abroadReason:null,
+  age:null, disability:null, parent2:null,
+  work:null, ownIns:null, hours:null, student:null, company:null,
+  incomeTypes:[],
+  amt:{ salary:{v:'',u:'m'}, pension:{v:'',u:'y'}, business:{v:'',u:'y'}, other:{v:'',u:'y'} },
+  daily:{ unemp:'', sick:'' },
+  myIncome:'', remit:'', remitMethod:null, apartStudent:null, taxDep:null
+};
+let history = ['intro'];
+const cur = () => history[history.length-1];
+
+const STEP_NAMES = {
+  relation:'ご家族との関係', living:'一緒に住んでいるか', residence:'住んでいる国', abroad:'海外にいる理由',
+  age:'年齢', disability:'障害の有無', parent2:'お子さまのもう一人の親', work:'働き方',
+  ownIns:'勤務先の健康保険', workDetail:'勤務の条件', incomeTypes:'収入の種類',
+  incomeAmounts:'収入の金額', taxDep:'税金の扶養', support:'生活費の支え方'
 };
 
-const TOTAL_STEPS = 6;
-
-function renderProgress(){
-  const el = document.getElementById('progress');
-  el.innerHTML = '';
-  for(let i=1;i<=TOTAL_STEPS;i++){
-    const d = document.createElement('div');
-    d.className = 'dot' + (i < state.step ? ' done' : (i === state.step ? ' current' : ''));
-    el.appendChild(d);
-  }
+/* ===== 流れ ===== */
+function flow(){
+  const f = ['relation','living','residence'];
+  if(S.residence==='abroad') f.push('abroad');
+  f.push('age');
+  if(['u19','19to22','23to59'].includes(S.age)) f.push('disability');
+  if(S.relation==='child') f.push('parent2');
+  f.push('work');
+  if(S.work==='part' || S.work==='full') f.push('ownIns');
+  if(S.work==='part' && S.ownIns!=='yes') f.push('workDetail');
+  f.push('incomeTypes');
+  if(hasAmt()) f.push('incomeAmounts');
+  f.push('taxDep','support');
+  return f;
 }
-
-function go(step){
-  state.step = step;
+function hardStop(){
+  return S.relation==='none'
+    || (S.relation==='other3' && S.living==='apart')
+    || (S.residence==='abroad' && S.abroadReason==='none')
+    || S.age==='75plus'
+    || S.ownIns==='yes';
+}
+function next(){
+  const c = cur();
+  if(c==='intro'){ history.push('relation'); return render(); }
+  if(hardStop()){ history.push('result'); return render(); }
+  const f = flow(); const i = f.indexOf(c);
+  history.push(i>=0 && i<f.length-1 ? f[i+1] : 'result');
   render();
 }
-
-function render(){
-  renderProgress();
-  const card = document.getElementById('card');
-  if(state.step === 0) card.innerHTML = introScreen();
-  else if(state.step === 1) card.innerHTML = stepRelation();
-  else if(state.step === 2) card.innerHTML = stepIncome();
-  else if(state.step === 3) card.innerHTML = stepHours();
-  else if(state.step === 4) card.innerHTML = stepStudent();
-  else if(state.step === 5) card.innerHTML = stepCompanySize();
-  else if(state.step === 6) card.innerHTML = stepLivelihood();
-  else if(state.step === 7) card.innerHTML = resultScreen();
-  attachHandlers();
+function back(){ if(history.length>1){ history.pop(); render(); } }
+function restart(){
+  Object.assign(S, {relation:null, living:null, residence:null, abroadReason:null, age:null, disability:null, parent2:null,
+    work:null, ownIns:null, hours:null, student:null, company:null, incomeTypes:[],
+    amt:{ salary:{v:'',u:'m'}, pension:{v:'',u:'y'}, business:{v:'',u:'y'}, other:{v:'',u:'y'} },
+    daily:{unemp:'',sick:''}, myIncome:'', remit:'', remitMethod:null, apartStudent:null, taxDep:null});
+  history=['intro']; render();
 }
 
-function introScreen(){
-  return `
-    <div class="step-label">START</div>
-    <h2>ご家族を扶養に入れられるか、6つの質問で確認します</h2>
-    <div class="sub">税金上の扶養（配偶者控除・扶養控除）と、社会保険上の扶養（健康保険の被扶養者）は基準が異なります。両方まとめて目安を確認できます。</div>
-    <ul class="intro-list">
-      <li><b>所要時間：</b>約1分</li>
-      <li><b>用意するもの：</b>対象の方の今後1年間の見込み年収</li>
-      <li><b>結果：</b>制度ごとの判定と、次に取るべき行動をご案内します</li>
-    </ul>
-    <button class="start-btn" onclick="go(1)">チェックをはじめる</button>
-  `;
+/* ===== 便利関数 ===== */
+const num = v => { const n = Number(String(v).replace(/[,，\s]/g,'')); return isFinite(n) ? n : NaN; };
+const yen = n => Math.round(n).toLocaleString('ja-JP') + '円';
+const man = n => { const m = n/10000; return (Math.round(m*10)/10).toLocaleString('ja-JP') + '万円'; };
+const AMT_TYPES = ['salary','pension','business','other','unemp','sick'];
+const hasAmt = () => S.incomeTypes.some(k=>AMT_TYPES.includes(k));
+function cap(){ // 収入の上限（万円）
+  if(S.age==='60to74' || S.disability==='yes') return 180;
+  if(S.age==='19to22' && !['spouse','naien'].includes(S.relation)) return 150;
+  return 130;
+}
+function annualOf(k){ const a=S.amt[k]; const n=num(a.v); if(isNaN(n)) return 0; return a.u==='m' ? n*12 : n; }
+function totalIncome(){
+  let t=0; ['salary','pension','business','other'].forEach(k=>{ if(S.incomeTypes.includes(k)) t+=annualOf(k); }); return t;
 }
 
-function stepRelation(){
-  return `
-    <div class="step-label">STEP 1 / 6</div>
-    <h2>扶養に入れたいのはどなたですか？</h2>
-    <div class="sub">続柄によって、税法上の判定基準（年収の上限）が変わります。</div>
-    <div class="options">
-      <button class="opt-btn" onclick="setRelation('spouse')">配偶者<span class="arrow">→</span></button>
-      <button class="opt-btn" onclick="setRelation('young')">お子さま・ご親族（19歳以上23歳未満）<span class="arrow">→</span></button>
-      <button class="opt-btn" onclick="setRelation('other')">その他のご親族（上記以外の年齢）<span class="arrow">→</span></button>
-    </div>
-  `;
+/* ===== 画面パーツ ===== */
+const check = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function opt(field, v, t, d, sel){
+  return `<button type="button" class="choice${sel?' sel':''}" data-pick="${field}" data-v="${v}">
+    <span class="mark">${sel?check:''}</span><span><span class="t">${t}</span>${d?`<span class="d">${d}</span>`:''}</span></button>`;
 }
-function setRelation(v){ state.relation = v; go(2); }
-
-function stepIncome(){
-  return `
-    <div class="step-label">STEP 2 / 6</div>
-    <h2>その方の、今後1年間の見込み年収は？</h2>
-    <div class="sub">給与や事業収入など、今後1年間の合計見込み額を万円単位で入力してください（雇用契約書ベースの見込み額で構いません）。</div>
-    <div class="num-row">
-      <input type="number" id="incomeInput" placeholder="例：110" min="0" value="${state.income ?? ''}">
-      <span class="unit">万円 / 年</span>
-    </div>
-    <div class="nav-row">
-      <button class="btn-text" onclick="go(1)">← 戻る</button>
-      <button class="btn-primary" id="incomeNext" onclick="submitIncome()">次へ</button>
-    </div>
-  `;
+function question(q, lead, field, options, hint){
+  return `<h2 class="q">${q}</h2>${lead?`<p class="lead">${lead}</p>`:''}
+    <div class="choices">${options.map(o=>opt(field,o[0],o[1],o[2],S[field]===o[0])).join('')}</div>
+    ${hint?hintBox(hint[0],hint[1]):''}${navRow(false)}`;
 }
-function submitIncome(){
-  const val = document.getElementById('incomeInput').value;
-  if(val === '' || isNaN(val) || Number(val) < 0) return;
-  state.income = Number(val);
-  go(3);
+function hintBox(title, body){ return `<details class="hint"><summary>${title}</summary><div class="body">${body}</div></details>`; }
+function navRow(showNext, enabled=true, label='次へ'){
+  return `<div class="nav"><button type="button" class="btn ghost" data-act="back">← もどる</button>
+    ${showNext?`<button type="button" class="btn primary" data-act="next" ${enabled?'':'disabled'}>${label}</button>`:'<span></span>'}</div>`;
+}
+function moneyField(id, label, help, val, unit, withUnit){
+  return `<div class="field"><label class="fl" for="${id}">${label}</label>${help?`<p class="fh">${help}</p>`:''}
+    <div class="money"><div class="inbox"><input id="${id}" data-money="${id}" inputmode="numeric" autocomplete="off" placeholder="0" value="${val}"><span class="yen">円</span></div>
+    ${withUnit?`<div class="seg" role="group" aria-label="期間"><button type="button" data-unit="${id}" data-u="m" class="${unit==='m'?'on':''}">月あたり</button><button type="button" data-unit="${id}" data-u="y" class="${unit==='y'?'on':''}">1年あたり</button></div>`:''}
+    </div><div class="conv" id="conv-${id}"></div></div>`;
 }
 
-function stepHours(){
-  return `
-    <div class="step-label">STEP 3 / 6</div>
-    <h2>週の所定労働時間は20時間以上ですか？</h2>
-    <div class="sub">社会保険（106万円の壁）の判定に使います。雇用契約書に書かれている時間で回答してください。</div>
-    <div class="options">
-      <button class="opt-btn" onclick="setHours(true)">20時間以上<span class="arrow">→</span></button>
-      <button class="opt-btn" onclick="setHours(false)">20時間未満、または働いていない<span class="arrow">→</span></button>
-    </div>
-    <div class="nav-row"><button class="btn-text" onclick="go(2)">← 戻る</button><span></span></div>
-  `;
-}
-function setHours(v){ state.hours20 = v; go(4); }
+/* ===== 各画面 ===== */
+const screens = {
+intro: () => `
+  <h2 class="intro-hero">ご家族を、あなたの健康保険の扶養に入れられるか確かめましょう</h2>
+  <p class="lead">質問に順番に答えるだけです。むずかしい言葉には「？」で説明をつけています。</p>
+  <ul class="intro-points">
+    <li><span class="ic">1</span><span><b>かかる時間は3分ほど</b><br>10個前後の質問に答えます。</span></li>
+    <li><span class="ic">2</span><span><b>手元にあると便利なもの</b><br>ご家族の給料・年金の金額がわかるもの（雇用契約書、年金の通知など）と、あなたの年収。</span></li>
+    <li><span class="ic">3</span><span><b>わかること</b><br>扶養に入れそうか、足りない条件は何か、会社に出す書類の目安。</span></li>
+  </ul>
+  <button type="button" class="btn primary wide" data-act="next">チェックをはじめる</button>
+  <p class="disclaimer" style="border:none; padding-top:6px;">このチェックは「健康保険の扶養」についてです。税金の扶養（配偶者控除・扶養控除）は別の基準です。入力内容はこの画面の中だけで使い、どこにも送信されません。</p>`,
 
-function stepStudent(){
-  return `
-    <div class="step-label">STEP 4 / 6</div>
-    <h2>その方は学生ですか？</h2>
-    <div class="sub">昼間学生は社会保険の加入要件（106万円の壁）の対象外になります。</div>
-    <div class="options">
-      <button class="opt-btn" onclick="setStudent(true)">学生である（昼間学生）<span class="arrow">→</span></button>
-      <button class="opt-btn" onclick="setStudent(false)">学生ではない<span class="arrow">→</span></button>
-    </div>
-    <div class="nav-row"><button class="btn-text" onclick="go(3)">← 戻る</button><span></span></div>
-  `;
-}
-function setStudent(v){ state.student = v; go(5); }
+relation: () => question('扶養に入れたいのは、あなたから見てどなたですか？',
+  '続き柄によって、一緒に住んでいる必要があるかどうかが変わります。', 'relation', [
+  ['spouse','配偶者（夫・妻）','籍を入れている夫・妻'],
+  ['naien','事実婚（籍を入れていない）の夫・妻','戸籍と住民票で関係を確認します'],
+  ['child','子ども・孫','養子も含みます'],
+  ['parent','あなたの父母・祖父母','曾祖父母も含みます'],
+  ['sibling','兄弟姉妹',''],
+  ['other3','上の4つ以外の親族','配偶者の父母（義理の親）、おじ・おば、おい・めい、子どもの配偶者、事実婚の相手の父母・子など'],
+  ['none','親族ではない、またはもっと遠い親戚','いとこ、友人、婚約者など']
+ ], ['「上の4つ以外の親族」はどこまで？', '<p>あなたから数えて3親等以内の親族です。配偶者の父母・祖父母・兄弟姉妹、おじ・おば、おい・めい、子どもや孫の配偶者などが当てはまります。</p><p>このグループの方は、<b>あなたと同じ家に住んでいること</b>が条件になります。</p>']),
 
-function stepCompanySize(){
-  return `
-    <div class="step-label">STEP 5 / 6</div>
-    <h2>その方の勤務先の従業員数は、おおよそ何人ですか？</h2>
-    <div class="sub">社会保険の適用拡大の対象企業かどうかの判定に使います（厚生年金の被保険者数ベース）。</div>
-    <div class="options">
-      <button class="opt-btn" onclick="setCompanySize('51plus')">51人以上<span class="arrow">→</span></button>
-      <button class="opt-btn" onclick="setCompanySize('under51')">51人未満<span class="arrow">→</span></button>
-      <button class="opt-btn" onclick="setCompanySize('unknown')">わからない<span class="arrow">→</span></button>
-    </div>
-    <div class="nav-row"><button class="btn-text" onclick="go(4)">← 戻る</button><span></span></div>
-  `;
-}
-function setCompanySize(v){ state.companySize = v; go(6); }
+living: () => question('その方と一緒に住んでいますか？',
+  '一緒に住んでいるかどうかで、収入のくらべ方が変わります。', 'living', [
+  ['together','一緒に住んでいる','同じ家で暮らし、生活費も一緒'],
+  ['tanshin','ふだんは一緒だが、今はあなたが単身赴任中','仕事の都合で一時的に離れているだけの場合'],
+  ['apart','別々に住んでいる','一人暮らしの学生の子ども、実家の親など']
+ ], ['同居と別居で何が変わるの？', '<p><b>一緒に住んでいる場合：</b>その方の年収が「あなたの年収の半分未満」であることが目安です。</p><p><b>別々に住んでいる場合：</b>その方の年収が「あなたからの仕送り額（1年分）より少ない」ことが条件です。仕送りは振込など記録が残る方法で行っていることが必要です。</p>']),
 
-function stepLivelihood(){
-  return `
-    <div class="step-label">STEP 6 / 6</div>
-    <h2>主にあなたの収入で生計を維持していますか？</h2>
-    <div class="sub">同居・別居は問いません（別居の場合は仕送り等を含みます）。社会保険の被扶養者認定に必要な要件です。</div>
-    <div class="options">
-      <button class="opt-btn" onclick="setLivelihood(true)">はい<span class="arrow">→</span></button>
-      <button class="opt-btn" onclick="setLivelihood(false)">いいえ<span class="arrow">→</span></button>
-    </div>
-    <div class="nav-row"><button class="btn-text" onclick="go(5)">← 戻る</button><span></span></div>
-  `;
-}
-function setLivelihood(v){ state.livelihood = v; go(7); }
+residence: () => question('その方は、どこに住んでいますか？',
+  '健康保険の扶養は、原則として日本に住んでいる方が対象です。', 'residence', [
+  ['domestic','日本国内に住んでいる','住民票が日本にある'],
+  ['abroad','海外に住んでいる','']
+ ]),
 
-// ---- Judgment logic ----
-function judgeTax(){
-  const inc = state.income;
-  if(state.relation === 'spouse'){
-    if(inc <= 123) return {ok:true, title:'配偶者控除の対象（満額）', detail:'年収123万円以下のため、配偶者控除（満額38万円）の対象になる見込みです。'};
-    if(inc < 160) return {ok:true, title:'配偶者特別控除の対象（ほぼ満額）', detail:'年収160万円までは配偶者特別控除がほぼ満額に近い水準で受けられる見込みです。'};
-    if(inc < 201.6) return {ok:true, title:'配偶者特別控除の対象（段階的に減額）', detail:'年収が上がるほど控除額は段階的に減っていきます。201.6万円で控除はゼロになります。'};
-    return {ok:false, title:'配偶者控除・配偶者特別控除の対象外', detail:'年収201.6万円以上のため、配偶者に関する所得控除の対象外となる見込みです。'};
+abroad: () => question('海外にいる理由に近いものはどれですか？',
+  '海外に住んでいても、次の理由なら例外として扶養に入れる場合があります。', 'abroadReason', [
+  ['study','海外に留学している学生',''],
+  ['accompany','あなたの海外赴任についていっている家族',''],
+  ['temporary','観光・ボランティアなど一時的な渡航','働くことが目的ではない場合'],
+  ['born','海外赴任中に結婚・出産して家族になった',''],
+  ['none','どれにも当てはまらない','海外で仕事をしている、海外に移住したなど']
+ ]),
+
+age: () => question('その方の年齢は？', '年齢によって、収入の上限が変わります。', 'age', [
+  ['u19','18歳以下',''],
+  ['19to22','19歳〜22歳','今年の12月31日時点の年齢で選んでください'],
+  ['23to59','23歳〜59歳',''],
+  ['60to74','60歳〜74歳',''],
+  ['75plus','75歳以上','']
+ ], ['年齢で上限はどう変わる？', '<p>収入の上限は原則<b>年130万円未満</b>です。</p><p>60歳以上の方、または障害のある方は<b>180万円未満</b>。19歳〜22歳の方（配偶者を除く）は<b>150万円未満</b>になります。</p><p>75歳以上の方は「後期高齢者医療制度」という別の保険に入るため、扶養には入れません。</p>']),
+
+disability: () => question('その方は、障害年金を受け取っている、または受け取れる程度の障害がありますか？',
+  '当てはまる場合、収入の上限が年180万円未満に上がります。', 'disability', [
+  ['yes','はい',''], ['no','いいえ',''], ['unknown','わからない','「いいえ」として判定します']
+ ]),
+
+parent2: () => question('お子さまのもう一人の親（あなたの配偶者）の収入は？',
+  '協会けんぽでは、共働きの場合、お子さまは「年収が多い方」の扶養に入ります。', 'parent2', [
+  ['none','配偶者は働いていない、またはあなたの扶養に入っている',''],
+  ['me','あなたの方が年収が多い',''],
+  ['same','ほぼ同じくらい','どちらが多いかはっきりしない'],
+  ['spouse','配偶者の方が年収が多い',''],
+  ['single','ひとり親、または離婚・別居している','']
+ ]),
+
+work: () => question('その方は、今どのように働いていますか？', '', 'work', [
+  ['none','働いていない','専業主婦・主夫、学生、年金生活、休職中など'],
+  ['part','パート・アルバイト',''],
+  ['full','正社員・契約社員など、ほぼフルタイム',''],
+  ['self','自営業・フリーランス・内職','']
+ ]),
+
+ownIns: () => question('その方は、勤務先の健康保険に自分で入っていますか？',
+  '勤務先から本人名義の保険証（または資格確認書）を受け取っていれば「入っている」です。', 'ownIns', [
+  ['yes','入っている',''], ['no','入っていない',''], ['unknown','わからない','']
+ ], ['なぜこれを聞くの？', '<p>勤務先の健康保険に自分で入っている人は、ほかの人の扶養には入れません。どちらか一方にしか入れない決まりです。</p>']),
+
+workDetail: () => {
+  const h = S.hours, mid = h==='20to30';
+  const ok = h && (!mid || (S.student && S.company));
+  const g = (label, field, opts, cls) => `<div class="group"><span class="gl">${label}</span>
+    <div class="row-choices ${cls}">${opts.map(o=>opt(field,o[0],o[1],o[2],S[field]===o[0])).join('')}</div></div>`;
+  return `<h2 class="q">パート・アルバイトの勤務条件を教えてください</h2>
+    <p class="lead">条件によっては、その方自身が勤務先の健康保険に入る必要があり、扶養から外れます。雇用契約書（労働条件通知書）を見ながら答えてください。</p>
+    ${g('1週間の契約上の勤務時間は？','hours',[['u20','20時間未満',''],['20to30','20〜30時間未満',''],['30plus','30時間以上','']],'c3')}
+    ${mid ? g('学生ですか？','student',[['day','昼間の学校に通う学生',''],['no','学生ではない','夜間・通信制の学生も含みます']],'c2')
+          + g('勤務先の従業員数は？','company',[['51plus','51人以上',''],['u50','50人以下',''],['unknown','わからない','']],'c3') : ''}
+    ${mid ? `<div class="note info">2026年10月から「月8.8万円以上」という給料の条件はなくなりました。週20時間以上・従業員51人以上の会社・学生でない、の3つがそろうと、給料の額に関係なく勤務先の健康保険に入ることになります（2か月を超えて働く予定の場合）。</div>` : ''}
+    ${navRow(true, ok)}`;
+},
+
+incomeTypes: () => {
+  const items = [
+    ['salary','給料','パート・アルバイト・会社員の給料。交通費も含みます'],
+    ['pension','年金','老齢年金・遺族年金・障害年金・企業年金など'],
+    ['business','自営業・フリーランスの収入',''],
+    ['unemp','失業手当','雇用保険の基本手当（受け取り中・受け取る予定）'],
+    ['sick','傷病手当金・出産手当金','受け取り中・受け取る予定'],
+    ['other','その他の収入','家賃収入、利子・配当など'],
+    ['retired','最近仕事を辞めた（辞める予定）','退職して収入がなくなる・減る場合'],
+    ['none','収入はない','']
+  ];
+  return `<h2 class="q">その方に、どんな収入がありますか？</h2>
+    <p class="lead">当てはまるものをすべて選んでください。これから1年間に入る予定のものも含みます。</p>
+    <div class="choices">${items.map(o=>`<button type="button" class="choice multi${S.incomeTypes.includes(o[0])?' sel':''}" data-multi="${o[0]}">
+      <span class="mark">${S.incomeTypes.includes(o[0])?check:''}</span><span><span class="t">${o[1]}</span>${o[2]?`<span class="d">${o[2]}</span>`:''}</span></button>`).join('')}</div>
+    ${hintBox('税金のかからない年金も入れるの？','<p>はい。健康保険の扶養では、遺族年金や障害年金のように税金がかからない収入も「収入」に数えます。税金の扶養とはここが違います。</p>')}
+    ${navRow(true, S.incomeTypes.length>0)}`;
+},
+
+incomeAmounts: () => {
+  let h = `<h2 class="q">それぞれの金額を入力してください</h2>
+    <p class="lead">税金や保険料が引かれる前の金額（額面）で入力します。月の金額でも1年の金額でも大丈夫です。</p>
+    <div class="note info" style="margin:-8px 0 24px">この方の上限は<b>年${cap()}万円未満</b>です。月額なら<b>${yen(Math.ceil(cap()*10000/12)-1)}以下</b>、失業手当などの日額なら<b>${yen(Math.ceil(cap()*10000/360)-1)}以下</b>が目安です。</div>`;
+  if(S.incomeTypes.includes('salary')){
+    h += moneyField('salary','給料', '雇用契約書（労働条件通知書）の条件で計算した金額です。交通費（通勤手当）も含めます。', S.amt.salary.v, S.amt.salary.u, true);
+    h += `<details class="hint" style="margin:-12px 0 24px"><summary>時給から計算する</summary><div class="body">
+      <div class="calc" style="margin:0; border:none; padding:0">
+        <div class="cr">時給<input id="c-wage" inputmode="numeric" placeholder="1100">円 ×
+        1日<input id="c-hrs" inputmode="decimal" placeholder="5">時間 ×
+        週<input id="c-days" inputmode="decimal" placeholder="4">日</div>
+        <div class="cr" style="margin-top:8px">交通費 月<input id="c-trans" inputmode="numeric" placeholder="0" style="width:100px">円</div>
+        <div class="conv" id="c-out"></div>
+        <button type="button" class="btn small apply" data-act="calc">この金額を入れる</button>
+      </div></div></details>`;
   }
-  if(state.relation === 'young'){
-    if(inc <= 136) return {ok:true, title:'特定扶養控除の対象（満額63万円）', detail:'年収136万円以下のため、特定扶養控除（満額）の対象になる見込みです。'};
-    if(inc <= 159) return {ok:true, title:'特定親族特別控除の対象（満額）', detail:'年収159万円以下のため、特定親族特別控除が満額受けられる見込みです。'};
-    if(inc < 178) return {ok:true, title:'特定親族特別控除の対象（段階的に減額）', detail:'年収が上がるほど控除額は段階的に減っていきます。178万円前後で対象外となる見込みです。'};
-    return {ok:false, title:'扶養控除の対象外', detail:'年収178万円以上のため、税法上の扶養控除の対象外となる見込みです。'};
+  if(S.incomeTypes.includes('pension')) h += moneyField('pension','年金','年金の振込通知書や年金額改定通知書に書かれた額面の金額です。複数ある場合は合計してください。', S.amt.pension.v, S.amt.pension.u, true);
+  if(S.incomeTypes.includes('business')) h += moneyField('business','自営業・フリーランスの収入','売上から、仕事に必要な経費を引いた金額です。直近の確定申告書の数字を参考にしてください。', S.amt.business.v, S.amt.business.u, true);
+  if(S.incomeTypes.includes('other')) h += moneyField('other','その他の収入','', S.amt.other.v, S.amt.other.u, true);
+  if(S.incomeTypes.includes('unemp')) h += moneyField('unemp','失業手当の「1日あたりの金額」','雇用保険受給資格者証に書かれた「基本手当日額」です。', S.daily.unemp, null, false);
+  if(S.incomeTypes.includes('sick')) h += moneyField('sick','傷病手当金・出産手当金の「1日あたりの金額」','支給決定通知などに書かれた日額です。', S.daily.sick, null, false);
+  h += `<div class="err" id="amt-err" hidden>金額を入力してください（ない場合は 0）。</div>` + navRow(true, true);
+  return h;
+},
+
+taxDep: () => question('その方は、あなたの税金の扶養に入っていますか？',
+  '年末調整の「配偶者控除」や「扶養控除」の対象かどうかです。判定には影響しませんが、入っていると収入を証明する書類が原則いらなくなります。', 'taxDep', [
+  ['yes','入っている',''], ['no','入っていない',''], ['unknown','わからない','']
+ ], ['どこで確認できる？', '<p>年末調整で会社に出した「扶養控除等申告書」に、その方の名前が書かれていれば「入っている」です。</p><p>配偶者が「配偶者特別控除」だけの場合や、16歳未満の子どもは「入っていない」を選んでください。あなたの所得が1,000万円を超える場合も、配偶者は「入っていない」になります。</p>']),
+
+support: () => {
+  if(S.living==='apart'){
+    const needSt = ['u19','19to22'].includes(S.age);
+    const ok = S.remit!=='' && S.remitMethod && (!needSt || S.apartStudent);
+    return `<h2 class="q">その方に、毎月いくら仕送りしていますか？</h2>
+      <p class="lead">別々に住んでいる場合は、その方の年収が「あなたからの仕送り（1年分）」より少ないことが条件です。</p>
+      ${moneyField('remit','1か月あたりの仕送り額','家賃や学費をあなたが直接払っている場合は、その月額も足してください。', S.remit, null, false)}
+      <div class="group"><span class="gl">仕送りの方法は？</span><div class="row-choices c3">
+        ${opt('remitMethod','bank','銀行振込','通帳や振込明細で確認できる',S.remitMethod==='bank')}
+        ${opt('remitMethod','genkin','現金書留','控えで確認できる',S.remitMethod==='genkin')}
+        ${opt('remitMethod','cash','手渡し','記録が残らない',S.remitMethod==='cash')}
+      </div></div>
+      ${needSt?`<div class="group"><span class="gl">その方は学生、または16歳未満ですか？</span><div class="row-choices c2">${opt('apartStudent','yes','はい','',S.apartStudent==='yes')}${opt('apartStudent','no','いいえ','',S.apartStudent==='no')}</div></div>`:''}
+      ${hintBox('なぜ振込の記録が必要なの？','<p>協会けんぽでは、別居の家族を扶養に入れるとき、送った人・受け取った人・金額がわかる書類（通帳のコピー、振込明細、現金書留の控え）の提出が必要です。手渡しは証明できないため、認められないことがあります。</p><p>ただし、16歳未満の方と16歳以上の学生は、この書類が不要です。</p>')}
+      ${navRow(true, ok, '結果を見る')}`;
   }
-  // other
-  if(inc <= 136) return {ok:true, title:'扶養控除の対象', detail:'年収136万円以下のため、扶養控除の対象になる見込みです。'};
-  return {ok:false, title:'扶養控除の対象外', detail:'年収136万円を超えているため、税法上の扶養控除の対象外となる見込みです。'};
+  return `<h2 class="q">あなた自身の年収を教えてください</h2>
+    <p class="lead">一緒に住んでいる場合は、その方の年収が「あなたの年収の半分未満」であることが目安です。</p>
+    ${moneyField('myIncome','あなたの年収（1年分）','税金などが引かれる前の金額です。去年の源泉徴収票の「支払金額」、または毎月の総支給額×12＋賞与で計算できます。', S.myIncome, null, false)}
+    ${navRow(true, S.myIncome!=='', '結果を見る')}`;
+},
+
+result: () => resultScreen()
+};
+
+/* ===== 判定 ===== */
+function evaluate(){
+  const R = []; // {name, st:'ok'|'warn'|'ng'|'skip', text}
+  const C = cap();
+  const relName = {spouse:'配偶者',naien:'事実婚の配偶者',child:'子ども・孫',parent:'父母・祖父母',sibling:'兄弟姉妹',other3:'その他の親族（3親等以内）',none:''}[S.relation];
+
+  // 1 家族の範囲
+  if(S.relation==='none') R.push({name:'扶養に入れる家族の範囲', st:'ng', text:'健康保険の扶養に入れるのは、あなたの3親等以内の親族です。いとこや友人などは対象になりません。'});
+  else if(S.relation==='other3'){
+    if(S.living==='apart') R.push({name:'扶養に入れる家族の範囲', st:'ng', text:`${relName}は、あなたと同じ家に住んでいることが条件です。別々に住んでいる場合は扶養に入れません。`});
+    else if(S.living==='tanshin') R.push({name:'扶養に入れる家族の範囲', st:'warn', text:`${relName}は同居が条件です。単身赴任中の扱いは健康保険によって異なるため、総務課に確認してください。`});
+    else R.push({name:'扶養に入れる家族の範囲', st:'ok', text:`${relName}は、同じ家に住んでいるので対象になります。`});
+  } else R.push({name:'扶養に入れる家族の範囲', st:'ok', text:`${relName}は、一緒に住んでいても別々に住んでいても対象になります。`});
+
+  // 2 住所
+  if(S.residence){
+    if(S.residence==='domestic') R.push({name:'住んでいる国', st:'ok', text:'日本国内に住んでいるので、条件を満たしています。'});
+    else if(S.abroadReason==='none') R.push({name:'住んでいる国', st:'ng', text:'海外に住んでいる方は、留学や海外赴任への同行などの例外を除き、扶養に入れません。'});
+    else if(S.abroadReason) R.push({name:'住んでいる国', st:'warn', text:'海外に住んでいますが、例外として認められる理由に当てはまります。留学なら学生証や在学証明、同行ならビザなど、理由を証明する書類が必要です。'});
+  }
+
+  // 3 年齢
+  if(S.age){
+    if(S.age==='75plus') R.push({name:'年齢', st:'ng', text:'75歳以上の方は「後期高齢者医療制度」に入るため、扶養には入れません。'});
+    else R.push({name:'年齢', st:'ok', text:`年齢の条件は満たしています。収入の上限は年${C}万円未満です${C===150?'（19歳〜22歳の特例）':C===180?'（60歳以上または障害のある方の特例）':''}。`});
+  }
+
+  // 4 共働きの子
+  if(S.relation==='child' && S.parent2){
+    if(S.parent2==='spouse') R.push({name:'どちらの親の扶養に入るか', st:'ng', text:'共働きの場合、お子さまは原則として年収が多い方の扶養に入ります。配偶者の方が多いので、配偶者側の健康保険に入るのが基本です。'});
+    else if(S.parent2==='same') R.push({name:'どちらの親の扶養に入るか', st:'warn', text:'協会けんぽでは、わずかな差でも年収が多い方の扶養に入ります。お二人の今後1年間の見込み年収をくらべて、あなたの方が多いかを総務課と確認してください。'});
+    else if(S.parent2==='single') R.push({name:'どちらの親の扶養に入るか', st:'ok', text:'もう一人の親がお子さまを扶養に入れていないことを確認できれば問題ありません。'});
+    else R.push({name:'どちらの親の扶養に入るか', st:'ok', text:'あなたが主に家計を支えているので、あなたの扶養に入れます。'});
+  }
+
+  // 5 本人の健康保険
+  if(S.work){
+    let r;
+    if(S.ownIns==='yes') r={st:'ng', text:'勤務先の健康保険に自分で入っているので、扶養には入れません。'};
+    else if(S.work==='full') r={st:'ng', text:'フルタイムで働く方は、通常は勤務先の健康保険に自分で入ることになるため、扶養には入れません。加入していない理由を勤務先に確認してください。'};
+    else if(S.work==='part'){
+      if(S.hours==='30plus') r={st:'ng', text:'週30時間以上働く場合、多くは勤務先の健康保険に入る必要があります。会社の規模に関係なく対象になるのが一般的です。'};
+      else if(S.hours==='20to30'){
+        if(S.student==='day') r={st:'ok', text:'昼間の学生は、週20時間以上働いていても勤務先の健康保険に入る対象外です。'};
+        else if(S.company==='51plus') r={st:'ng', text:'週20時間以上・従業員51人以上の会社・学生でない、の条件がそろっているため、給料の額に関係なく勤務先の健康保険に入る対象です（2026年10月から給料の条件がなくなりました）。'};
+        else if(S.company==='unknown') r={st:'warn', text:'勤務先の従業員が51人以上なら、勤務先の健康保険に入る対象になります。その方の勤務先に確認してください。'};
+        else r={st:'ok', text:'今の条件では勤務先の健康保険に入る対象ではありません。ただし2027年10月から対象が「従業員36人以上の会社」に広がる予定で、その後も段階的に広がります。'};
+      } else r={st:'ok', text:'週20時間未満なので、勤務先の健康保険に入る対象ではありません。'};
+      if(S.ownIns==='unknown' && r.st==='ok') r={st:'warn', text:r.text+' 念のため、本人名義の保険証を受け取っていないか確認してください。'};
+    } else r={st:'ok', text: S.work==='self' ? '自営業の方は国民健康保険の対象ですが、収入が基準内なら扶養に入れます。' : '働いていないので、この条件は問題ありません。'};
+    R.push({name:'その方自身の健康保険', ...r});
+  }
+
+  // 6 収入
+  const total = totalIncome();
+  let incomeRes = null;
+  if(S.incomeTypes.length){
+    const limitY = C*10000;
+    const dLimit = limitY/360;
+    const msgs=[]; let st='ok';
+    if(!hasAmt()){
+      incomeRes={name:'収入の上限', st:'ok', text:`収入がない（退職などでなくなる）ので、条件を満たしています（上限は年${C}万円未満）。`};
+    } else {
+      if(total >= limitY){ st='ng'; msgs.push(`年収の見込みが${man(total)}で、上限の${C}万円以上です。`); }
+      else msgs.push(`年収の見込みは${man(total)}で、上限の${C}万円未満です。`);
+      ['unemp','sick'].forEach(k=>{
+        if(!S.incomeTypes.includes(k)) return;
+        const d=num(S.daily[k]); const nm = k==='unemp'?'失業手当':'傷病手当金・出産手当金';
+        if(!isNaN(d) && d >= dLimit){ st='ng'; msgs.push(`${nm}の日額${yen(d)}が基準（${yen(Math.ceil(dLimit))}）以上のため、受け取っている間は扶養に入れません。受け取り終わってから改めて申請できます。`); }
+        else if(!isNaN(d) && d>0) msgs.push(`${nm}の日額は基準（${yen(Math.ceil(dLimit))}未満）を満たしています。`);
+      });
+      if(st==='ok' && total >= limitY*0.9) { st='warn'; msgs.push('上限にかなり近いため、勤務時間や時給が増えると外れる可能性があります。'); }
+      const onlySalary = S.incomeTypes.every(k=>k==='salary');
+      if(onlySalary && st!=='ng') msgs.push('収入が給料だけの場合、2026年4月から雇用契約書の条件で計算した年収で判定されます。');
+      incomeRes={name:'収入の上限', st, text:msgs.join(' ')};
+    }
+    R.push(incomeRes);
+  }
+
+  // 7 生計維持
+  let supportRes=null, gauge2=null;
+  if(S.living==='apart' && S.remit!==''){
+    const ry = num(S.remit)*12;
+    if(!(ry>0)) supportRes={st:'ng', text:'別々に住んでいる場合は、あなたからの仕送りが必要です。'};
+    else if(total < ry) supportRes = (S.remitMethod==='cash' && S.apartStudent!=='yes')
+      ? {st:'warn', text:`年収${man(total)}は仕送り1年分の${man(ry)}より少ないので条件を満たしますが、手渡しは証明ができません。銀行振込に切り替えることをおすすめします。`}
+      : {st:'ok', text:`年収${man(total)}は、仕送り1年分の${man(ry)}より少ないので条件を満たしています。`};
+    else supportRes={st:'ng', text:`年収${man(total)}が、仕送り1年分の${man(ry)}以上です。別居の場合は、仕送りの方が多い必要があります。`};
+    gauge2={title:'その方の年収 と あなたからの仕送り（1年分）', val:total, wall:ry, wallLabel:`仕送り ${man(ry)}`, st:supportRes.st};
+  } else if(S.myIncome!=='' && (S.living==='together'||S.living==='tanshin')){
+    const my=num(S.myIncome), half=my/2;
+    if(total < half) supportRes={st:'ok', text:`年収${man(total)}は、あなたの年収の半分（${man(half)}）未満なので条件を満たしています。`};
+    else if(total < my) supportRes={st:'warn', text:`年収${man(total)}が、あなたの年収の半分（${man(half)}）以上です。ただし、あなたの年収を下回っていて、あなたが家計の中心と認められれば扶養に入れる場合があります。世帯の状況を総務課に相談してください。`};
+    else supportRes={st:'ng', text:`年収${man(total)}が、あなたの年収（${man(my)}）以上のため、あなたが家計を主に支えているとは認められにくい状況です。`};
+    gauge2={title:'その方の年収 と あなたの年収の半分', val:total, wall:half, wallLabel:`半分 ${man(half)}`, st:supportRes.st};
+  }
+  if(supportRes) R.push({name: S.living==='apart' ? '仕送りで生活を支えているか（別居）' : 'あなたが家計を支えているか（同居）', ...supportRes});
+
+  const any = s => R.some(r=>r.st===s);
+  const overall = any('ng') ? 'ng' : any('warn') ? 'warn' : 'ok';
+  const gauge1 = incomeRes && hasAmt() ? {title:`その方の年収 と 上限（${C}万円）`, val:total, wall:C*10000, wallLabel:`上限 ${C}万円`, st: total>=C*10000?'ng':(total>=C*9000?'warn':'ok')} : null;
+  return {R, overall, gauge1, gauge2, total};
 }
 
-function judgeShaho(){
-  if(state.livelihood === false){
-    return {ok:false, title:'生計維持要件を満たしません', detail:'社会保険の被扶養者認定には「主として被保険者の収入により生計を維持していること」が必要です。この要件を満たさないため、被扶養者にはなれない見込みです。'};
+function gaugeHTML(g){
+  if(!g) return '';
+  const max = Math.max(g.val, g.wall) * 1.25 || 1;
+  const vp = Math.min(100, g.val/max*100), wp = Math.min(100, g.wall/max*100);
+  return `<div class="gauge"><div class="gt">${g.title}</div>
+    <div class="track"><div class="val ${g.st}" style="width:${Math.max(vp,1.5)}%"></div>
+      <div class="wall${wp>65?' flip':''}" style="left:${wp}%"><span>${g.wallLabel}</span></div></div>
+    <div class="legend"><span>その方の年収：<b style="color:var(--ink)">${man(g.val)}</b></span><span>${g.val < g.wall ? '線より左なら条件クリア' : '線を超えています'}</span></div></div>`;
+}
+
+function docsList(){
+  const d = [], T = S.incomeTypes;
+  d.push(['健康保険 被扶養者（異動）届','会社（総務課）が用意し、会社から日本年金機構に提出します']);
+  d.push(['あなたとご家族のマイナンバー','届書に書くことで、省略できる書類があります']);
+  if(S.relation==='naien') d.push(['事実婚であることがわかる書類','お二人の戸籍謄本（抄本）と、あなたの世帯全員の住民票。発行から90日以内・コピー不可・マイナンバーの記載がないもの']);
+  else d.push(['続き柄がわかる書類','ご家族の戸籍謄本（抄本）、またはあなたが世帯主で同じ世帯なら住民票。発行から90日以内・コピー不可・マイナンバーの記載がないもの。会社が確認すれば提出を省略できる場合があります']);
+  if(S.taxDep==='yes'){
+    d.push(['収入を証明する書類は原則いりません','税金の扶養に入っているため、会社の証明で足ります']);
+  } else {
+    const amt = T.filter(k=>AMT_TYPES.includes(k));
+    const onlySalary = amt.length>0 && amt.every(k=>k==='salary') && !T.includes('retired');
+    if(onlySalary){
+      d.push(['雇用契約書（労働条件通知書）のコピー','あわせて「給与収入のみです」という申し立てが必要です。届書の申立欄に書けば、別紙はいりません']);
+    } else {
+      if(T.includes('retired')) d.push(['退職証明書、または離職票のコピー','']);
+      if(T.includes('unemp')) d.push(['雇用保険受給資格者証のコピー','']);
+      if(T.includes('pension')) d.push(['年金額改定通知書などのコピー','今の年金額がわかるもの']);
+      if(T.includes('business')||T.includes('other')) d.push(['直近の確定申告書のコピー','']);
+      const special = ['retired','unemp','pension','business'].some(k=>T.includes(k));
+      if(!special || T.includes('salary') || T.includes('sick')) d.push(['課税（非課税）証明書','市区町村の役所や、マイナンバーカードがあればコンビニで取れます']);
+    }
   }
-  const cap = state.relation === 'young' ? 150 : 130;
-  if(state.income >= cap){
-    return {ok:false, title:`社会保険上の扶養の対象外（${cap}万円の壁）`, detail:`見込み年収が${cap}万円以上のため、社会保険上の被扶養者には該当しない見込みです。ご本人自身で健康保険・年金への加入が必要になります。`};
-  }
-  const hits106 = state.hours20 === true && state.companySize === '51plus' && state.student === false;
-  if(hits106){
-    return {ok:false, title:'ご本人が社会保険への加入対象（106万円の壁）', detail:'週20時間以上の勤務・従業員51人以上の企業・学生でない、という条件を満たすため、年収に関わらずご本人が勤務先の社会保険に加入する必要がある見込みです（2026年10月以降は賃金要件が撤廃され、週20時間以上の勤務のみで加入対象となります）。'};
-  }
-  if(state.companySize === 'unknown'){
-    return {ok:true, warn:true, title:`社会保険上の扶養の対象となる可能性（${cap}万円未満）`, detail:`見込み年収は基準内ですが、勤務先の従業員規模が不明なため、106万円の壁（社会保険加入義務）に該当しないか、対象者ご本人の勤務先に確認してください。`};
-  }
-  return {ok:true, title:`社会保険上の扶養の対象（${cap}万円未満）`, detail:`見込み年収が${cap}万円未満で、社会保険加入の要件にも該当しないため、被扶養者として認定される見込みです。`};
+  if(['pension','unemp','sick'].some(k=>T.includes(k))) d.push(['税金のかからない収入の金額がわかる通知書のコピー','障害年金・遺族年金・傷病手当金・出産手当金・失業手当を受け取っている場合']);
+  if(S.living==='apart' && S.apartStudent!=='yes') d.push(['仕送りの記録', S.remitMethod==='genkin' ? '現金書留の控えのコピー' : '通帳のコピー（名義のページと、振込日・金額のページ）や振込明細。送った人・受け取った人・金額がわかるもの']);
+  if(S.residence==='abroad' && S.abroadReason && S.abroadReason!=='none') d.push(['海外にいる理由を証明する書類','留学なら学生ビザや在学証明書、同行なら査証など（日本語訳をつけます）']);
+  return d;
 }
 
 function resultScreen(){
-  const tax = judgeTax();
-  const shaho = judgeShaho();
-  const bothOk = tax.ok && shaho.ok && !shaho.warn;
-  const bothNg = !tax.ok && !shaho.ok;
-
-  let sealText, sealClass;
-  if(bothOk){ sealText = '扶養<br>可能性 高'; sealClass = 'ok'; }
-  else if(bothNg){ sealText = '要<br>再検討'; sealClass = ''; }
-  else { sealText = '要<br>確認'; sealClass = ''; }
-
-  let actionText, actionList;
-  if(bothOk){
-    actionText = '税法上・社会保険上のどちらも扶養の対象となる可能性が高い状況です。総務課に扶養追加の手続きをご相談ください。';
-    actionList = ['対象の方のマイナンバー', '続柄が確認できる書類（住民票など）', '年収見込みが分かる書類（雇用契約書・課税証明書など）'];
-  } else if(bothNg){
-    actionText = '現時点の見込みでは、税法上・社会保険上いずれの条件も満たさない可能性が高い結果です。念のため総務課に相談のうえ、正式な判定を受けてください。';
-    actionList = ['年収の見込みを見直せないか検討する', '不明点があれば総務課に相談する'];
-  } else {
-    actionText = '制度によって判定が分かれる、または追加確認が必要な結果です。税法上と社会保険上は別の制度・別の手続きになるため、それぞれの状況を総務課に伝えて確認してください。';
-    actionList = ['この画面の内容を総務課担当者に共有する', '不明な項目（勤務先の従業員規模など）を確認しておく'];
-  }
-
+  const {R, overall, gauge1, gauge2} = evaluate();
+  const head = {
+    ok:['○','扶養に入れる見込みです','入力された内容では、すべての条件を満たしています。総務課で手続きを進めましょう。'],
+    warn:['△','確認が必要な点があります','大きな問題はなさそうですが、下の「△」の項目を総務課と確認してください。'],
+    ng:['×','今の条件では扶養に入るのは難しい見込みです','下の「×」の項目が条件を満たしていません。状況が変われば入れる場合もあるので、総務課に相談してください。']
+  }[overall];
+  const stIcon = {ok:'○', warn:'△', ng:'×', skip:'―'};
+  const stopped = hardStop();
+  const docs = docsList();
   return `
-    <div class="result-header">
-      <div class="seal-big ${sealClass}">${sealText}</div>
-      <h2>判定結果</h2>
-    </div>
-
-    <div class="result-block">
-      <div class="label">税法上の扶養（所得税の控除）</div>
-      <div class="verdict ${tax.ok ? 'ok' : 'ng'}">${tax.title}</div>
-      <p>${tax.detail}</p>
-    </div>
-
-    <div class="result-block">
-      <div class="label">社会保険上の扶養（健康保険の被扶養者）</div>
-      <div class="verdict ${shaho.ok ? 'ok' : 'ng'}">${shaho.title}</div>
-      <p>${shaho.detail}</p>
-    </div>
-
-    <div class="action-box">
-      <div class="label">次にすること</div>
-      <p>${actionText}</p>
-      <ul>${actionList.map(i => `<li>${i}</li>`).join('')}</ul>
-    </div>
-
-    <div class="disclaimer">
-      本ツールの結果はあくまで目安です。年収の壁に関する制度は2025〜2026年にかけて改正が続いており（106万円の壁の賃金要件は2026年10月に撤廃予定など）、最終的な判定は必ず総務課・年金事務所・税務署にご確認ください。金額の基準は2026年（令和8年）時点の情報にもとづいています。
-    </div>
-
-    <div class="restart-row">
-      <button class="btn-text" onclick="go(0)">最初からやり直す</button>
-    </div>
-  `;
+    <div class="verdict ${overall}"><div class="big" aria-hidden="true">${head[0]}</div><div><h2>${head[1]}</h2><p>${head[2]}</p></div></div>
+    ${gaugeHTML(gauge1)}${gauge2?'<div style="height:10px"></div>'+gaugeHTML(gauge2):''}
+    <h3 class="sec-title">条件ごとの結果</h3>
+    <div class="reqs">${R.map(r=>`<div class="req"><div class="st ${r.st}" aria-label="${{ok:'満たしている',warn:'要確認',ng:'満たしていない'}[r.st]}">${stIcon[r.st]}</div><div><h3>${r.name}</h3><p>${r.text}</p></div></div>`).join('')}
+    ${stopped?`<div class="req"><div class="st skip">―</div><div><h3>そのほかの条件</h3><p>上の「×」の条件で扶養に入れないことがわかったため、ここで確認を終えました。</p></div></div>`:''}</div>
+    ${overall!=='ng'?`<h3 class="sec-title">手続きで必要になる書類の目安</h3><ul class="docs">${docs.map(x=>`<li>${x[0]}${x[1]?`<small>${x[1]}</small>`:''}</li>`).join('')}</ul>`:''}
+    ${overall!=='ng' && ['spouse','naien'].includes(S.relation) && ['19to22','23to59'].includes(S.age) ? '<div class="note info">配偶者が20歳以上60歳未満の場合、同じ用紙で「国民年金の第3号被保険者」の届け出も一緒に行います。これで配偶者は自分で年金保険料を払わなくてよくなります。</div>' : ''}
+    <div class="next"><h3>次にすること</h3><p>${
+      overall==='ok' ? 'この画面を見せながら、総務課に「家族を扶養に入れたい」と伝えてください。結婚・退職など扶養に入る理由ができた日から5日以内に届け出る決まりです。60日以上遅れると追加の書類が必要になるので、早めに相談しましょう。'
+      : overall==='warn' ? 'この画面を総務課の担当者に見せて、「△」の項目を一緒に確認してください。'
+      : '扶養に入れない場合、ご家族は国民健康保険や勤務先の健康保険に加入することになります。収入や勤務時間を見直す予定があれば、その内容も含めて総務課に相談してください。'}</p></div>
+    <p class="disclaimer">この結果はあくまで目安です。協会けんぽの扶養の手続きは、会社を通じて日本年金機構に届け出て、そこで最終的に判断されます。状況によっては、ここに書かれていない書類を求められることがあります。基準は2026年10月時点の制度にもとづいています。税金の扶養（配偶者控除・扶養控除）は別の基準のため、このチェックでは判定していません。</p>
+    <div class="actions">
+      <button type="button" class="btn ghost" data-act="back">← 答えを直す</button>
+      <button type="button" class="btn small" data-act="print">結果を印刷する</button>
+      <button type="button" class="btn small" data-act="restart">最初からやり直す</button>
+    </div>`;
 }
 
-function attachHandlers(){
-  const inp = document.getElementById('incomeInput');
-  if(inp){
-    inp.addEventListener('keydown', e => { if(e.key === 'Enter') submitIncome(); });
-    inp.focus();
+/* ===== 描画 ===== */
+function renderProgress(){
+  const c = cur(), p = document.getElementById('progress');
+  if(c==='intro' || c==='result'){ p.hidden = true; return; }
+  p.hidden = false;
+  const f = flow(); const i = f.indexOf(c);
+  const pct = Math.round((i)/(f.length) * 100);
+  document.getElementById('fill').style.width = Math.max(pct,4)+'%';
+  document.getElementById('ptxt').textContent = `質問 ${i+1} / ${f.length}`;
+  document.getElementById('pname').textContent = STEP_NAMES[c] || '';
+}
+function render(){
+  renderProgress();
+  const card = document.getElementById('card');
+  card.innerHTML = screens[cur()]();
+  updateConversions();
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+}
+
+/* 金額の換算表示 */
+function getMoney(id){
+  if(S.amt[id]) return S.amt[id].v;
+  if(id in S.daily) return S.daily[id];
+  return S[id];
+}
+function setMoney(id, v){
+  if(S.amt[id]) S.amt[id].v = v;
+  else if(id in S.daily) S.daily[id] = v;
+  else S[id] = v;
+}
+function updateConversions(){
+  document.querySelectorAll('[data-money]').forEach(inp=>{
+    const id = inp.dataset.money, el = document.getElementById('conv-'+id); if(!el) return;
+    const n = num(inp.value);
+    if(inp.value==='' || isNaN(n)){ el.textContent=''; return; }
+    if(S.amt[id]) el.innerHTML = S.amt[id].u==='m' ? `1年あたり <b>${yen(n*12)}</b>（${man(n*12)}）` : `1か月あたり 約 <b>${yen(n/12)}</b>`;
+    else if(id==='remit') el.innerHTML = `1年あたり <b>${yen(n*12)}</b>（${man(n*12)}）`;
+    else if(id==='myIncome') el.innerHTML = `${man(n)}／半分は <b>${man(n/2)}</b>`;
+    else el.innerHTML = `${yen(n)}／日`;
+  });
+  // 支え方画面の「次へ」
+  if(cur()==='support'){
+    const b = document.querySelector('[data-act="next"]');
+    if(b) b.disabled = S.living==='apart' ? !(S.remit!=='' && !isNaN(num(S.remit)) && S.remitMethod && (!['u19','19to22'].includes(S.age) || S.apartStudent)) : !(S.myIncome!=='' && !isNaN(num(S.myIncome)));
   }
 }
+function calcPreview(){
+  const w=num(document.getElementById('c-wage').value), h=num(document.getElementById('c-hrs').value), d=num(document.getElementById('c-days').value);
+  const t=num(document.getElementById('c-trans').value||0);
+  const out=document.getElementById('c-out');
+  if([w,h,d].some(x=>isNaN(x)||x<=0)){ out.textContent=''; return null; }
+  const m = w*h*d*52/12 + (isNaN(t)?0:t);
+  out.innerHTML = `1か月あたり 約 <b>${yen(m)}</b>／1年あたり 約 <b>${yen(m*12)}</b>`;
+  return Math.round(m);
+}
+
+/* ===== 操作 ===== */
+document.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.pick){
+    const f=b.dataset.pick, v=b.dataset.v; S[f]=v;
+    // 依存する回答を整理
+    if(f==='residence' && v==='domestic') S.abroadReason=null;
+    if(f==='work' && v!=='part'){ S.hours=S.student=S.company=null; }
+    if(f==='work' && (v==='none'||v==='self')) S.ownIns=null;
+    if(f==='hours' && v!=='20to30'){ S.student=S.company=null; }
+    if(['workDetail','support'].includes(cur())){ const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+    return next();
+  }
+  if(b.dataset.multi){
+    const v=b.dataset.multi; let t=S.incomeTypes;
+    if(v==='none') t = t.includes('none') ? t.filter(x=>x!=='none') : t.filter(x=>x==='retired').concat('none');
+    else { if(v!=='retired') t=t.filter(x=>x!=='none'); t = t.includes(v) ? t.filter(x=>x!==v) : [...t, v]; }
+    S.incomeTypes=t; const y=window.scrollY; render(); window.scrollTo(0,y); return;
+  }
+  if(b.dataset.unit){ S.amt[b.dataset.unit].u=b.dataset.u; document.querySelectorAll(`[data-unit="${b.dataset.unit}"]`).forEach(x=>x.classList.toggle('on', x.dataset.u===b.dataset.u)); updateConversions(); return; }
+  const a=b.dataset.act;
+  if(a==='back') return back();
+  if(a==='restart') return restart();
+  if(a==='print') return window.print();
+  if(a==='calc'){ const m=calcPreview(); if(m!=null){ S.amt.salary.v=String(m); S.amt.salary.u='m'; const y=window.scrollY; render(); window.scrollTo(0,y);} return; }
+  if(a==='next'){
+    if(cur()==='incomeAmounts'){
+      const ids=[...document.querySelectorAll('[data-money]')].map(i=>i.dataset.money);
+      const bad=ids.some(id=>{ const v=getMoney(id); return v==='' || isNaN(num(v)) || num(v)<0; });
+      if(bad){ document.getElementById('amt-err').hidden=false; return; }
+    }
+    return next();
+  }
+});
+document.addEventListener('input', e=>{
+  const t=e.target;
+  if(t.dataset.money){ setMoney(t.dataset.money, t.value.trim()); updateConversions(); }
+  if(t.id && t.id.startsWith('c-')) calcPreview();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && e.target.matches('input')){ const n=document.querySelector('[data-act="next"]:not([disabled])'); if(n) n.click(); }
+});
 
 render();
 </script>
